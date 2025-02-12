@@ -21,37 +21,23 @@ Siga o passo-a-passo descrito na documentação para instalar o MininetFed na m�
 
 - [Primeiros Passos](docs/pt-br/Primeiros-Passos.md)
 
+## Executando experimentos
+
 ## Seleção de Todos os Clientes (all)
 
 Executar o arquivo topology_all.py utilizando o script de execução conforme mostrado a baixo
 
 ```shell
-sudo ./main.sh casos_de_uso/sbrc_2025/topology_all.py
+sudo python3 topology.py [--case_all|--case_random|--case_energy]
 ```
 
-Os resultados da execução estarão no diretório `sbrc/sbrc_mnist_select_all`
+Os resultados da execução estarão no diretório `sbrc/sbrc_mnist_select_[all|random|energy]`
 
-## Seleção Aleatória (random)
-
-```shell
-sudo ./main.sh casos_de_uso/sbrc_2025/topology_random.py
-```
-
-Os resultados da execução estarão no diretório `sbrc/sbrc_mnist_select_random`
-
-## Seleção Considerando o Consumo de Energia (energy)
-
-```shell
-sudo ./main.sh casos_de_uso/sbrc_2025/topology_energy.py
-```
-
-Os resultados da execução estarão no diretório `sbrc/sbrc_mnist_select_energy`
-
-## (Alternativa) Executar os 3 de uma só vez
+<!-- ## (Alternativa) Executar os 3 de uma só vez
 
 ```shell
 sudo ./main.sh casos_de_uso/sbrc_2025/topology_all.py casos_de_uso/sbrc_2025/topology_random.py casos_de_uso/sbrc_2025/topology_energy.py
-```
+``` -->
 
 ## Gráfico de Consumo de Energia Acumulado
 

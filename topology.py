@@ -21,36 +21,44 @@ volumes = [f"{Path.cwd()}:" + volume, "/tmp/.X11-unix:/tmp/.X11-unix:rw"]
 
 server_args = {}
 client_args = {}  
+experiment_name = ""
 
 def topology():
-    net = MininetFed(ipBase='10.0.0.0/24', iot_module='mac802154_hwsim', controller=[], experiment_name="sbrc_mnist_select_all_iid",
-                     experiments_folder="sbrc", date_prefix=False, default_volumes=volumes, topology_file=sys.argv[0])
-
+    # Configurações iniciais
     t = 5
     if '-10' in sys.argv:
         t = 10
         
     
-    if '-case_all' in sys.argv:
+    if '--case_all' in sys.argv:
         server_args = {"min_trainers": 8, "num_rounds": 20,
                "stop_acc": 0.999, 'client_selector': 'All'}
         client_args = {"mode": 'random same_samples',
                'num_samples': 15000} 
-    elif '-case_random' in sys.argv:
+        experiment_name='sbrc_mnist_select_all_iid'
+    elif '--case_random' in sys.argv:
         
         server_args = {"min_trainers": 8, "num_rounds": 20,
                "stop_acc": 0.99, 'client_selector': 'Random'}
         client_args = {"mode": 'random same_samples',
                     'num_samples': 15000} 
+        experiment_name='sbrc_mnist_select_random_5_iid'
         
-    elif '-case_energy' in sys.argv:
+    elif '--case_energy' in sys.argv:
         server_args = {"min_trainers": 8, "num_rounds": 20,
                "stop_acc": 0.99, 'client_selector': 'LeastEnergyConsumption'}
         client_args = {"mode": 'random same_samples',
                'num_samples': 15000}
+        experiment_name='sbrc_mnist_select_energy_iid'
     else:
-        raise Exception("É preciso selecionar um caso para executar (-case_all, -case_random, ou -case_energy)\n")
+        raise Exception("É preciso selecionar um caso para executar (--case_all, --case_random, ou --case_energy)\n")
 
+
+    # Instanciação da rede
+
+    net = MininetFed(ipBase='10.0.0.0/24', iot_module='mac802154_hwsim', controller=[], experiment_name=experiment_name,
+                     experiments_folder="sbrc", date_prefix=False, default_volumes=volumes, topology_file=sys.argv[0])
+    
     path = os.path.dirname(os.path.abspath(__file__))
 
     json_file = '/root/json/lowpan-storing.json'
