@@ -1,0 +1,1 @@
+table_add port_table set_egress_port 0 => 1

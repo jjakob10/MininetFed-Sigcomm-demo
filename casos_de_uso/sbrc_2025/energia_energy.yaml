@@ -1,0 +1,11 @@
+experiments_folder: sbrc
+
+experiments_analysis:
+  save_csv: true
+
+  from:
+    - experiment: sbrc_mnist_select_energy_iid
+      alias: energy
+
+  graphics:
+    - type: total_energy_consumption_all

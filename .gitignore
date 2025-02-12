@@ -1,0 +1,23 @@
+env/
+.vscode/
+__pycache__/
+localenv/
+analysis/env2
+env_analysis
+experiments/
+images_english/
+env_key_gen/
+temp/ckksfed_fhe/pasta
+data_temp/
+experiments_out/
+# client_log/
+local_env/
+experiments_queue/
+docs/env/
+envs/
+sbrc/
+
+client/data/cifar-10-batches-py/
+client/data/mnist.npz
+# client/data/*.csv
+client/data/*.zip

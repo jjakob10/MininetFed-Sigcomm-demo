@@ -1,0 +1,35 @@
+experiments_folder: sbrc
+
+experiments_analysis:
+  save_csv: true
+
+  from:
+    - experiment: sbrc_mnist_select_all_iid
+      alias: all
+    - experiment: sbrc_mnist_select_random_5_iid
+      alias: random
+    - experiment: sbrc_mnist_select_energy_iid
+      alias: energy
+
+      chart_title: "Dados iid"
+
+    # - experiment: sbrc_mnist_select_all_mild_iid
+    #   alias: all
+    # - experiment: sbrc_mnist_select_random_5_mild_iid
+    #   alias: random
+    # - experiment: sbrc_mnist_select_energy_mild_iid
+    #   alias: energy
+
+    #   chart_title: "Dados mid-iid"
+
+    # - experiment: sbrc_mnist_select_all_non_iid
+    #   alias: all
+    # - experiment: sbrc_mnist_select_random_5_non_iid
+    #   alias: random
+    # - experiment: sbrc_mnist_select_energy_non_iid
+    #   alias: energy
+
+    #   chart_title: "Dados non-iid"
+
+  graphics:
+    - type: mean_acc
