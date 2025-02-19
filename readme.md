@@ -42,8 +42,14 @@ Após finalizar a execução do experimento, os seguintes arquivos estarão no d
 ```
 
 ```shell
-python analysis.py casos_de_uso/sbrc_2025/energia_all.yaml casos_de_uso/sbrc_2025/energia_random.yaml casos_de_uso/sbrc_2025/energia_energy.yaml
+python analysis.py [casos_de_uso/sbrc_2025/energia_all.yaml | casos_de_uso/sbrc_2025/energia_random.yaml | casos_de_uso/sbrc_2025/energia_energy.yaml]
 ```
+
+Após a execução, é esperado que seja aberta uma janela com o gráfico como na figura a seguir:
+
+<img src="https://github.com/lprm-ufes/MininetFed-LoWPAN/blob/topology-unico/images/grafico.png" width="600" alt=""/>
+
+Também é gerado um arquivo .eps diretório raiz.
 
 ## Gráfico do Impacto no Desempenho do Treinamento
 
