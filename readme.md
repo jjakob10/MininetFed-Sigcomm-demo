@@ -75,6 +75,6 @@ Caso algum problema ocorra durante a execução, use o seguinte comando para del
 
 Após a limpeza, tente executar novamente.
 
-> Aviso importante: O script de limpesa possivelmente afetará outros containers docker em execução na mesma máquina que **não** tem relação com o MininetFed.
+> Aviso importante: O script de limpeza possivelmente afetará outros containers docker em execução na mesma máquina que **não** têm relação com o MininetFed.
 >
 > Garanta de antemão que não há nada importante executando em containers antes de prosseguir com a execução do script.
