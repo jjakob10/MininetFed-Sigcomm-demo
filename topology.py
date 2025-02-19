@@ -3,14 +3,15 @@ import sys
 from pathlib import Path
 from time import sleep
 
-from containernet.node import DockerP4Sensor, DockerSensor
-from containernet.cli import CLI
 from mininet.log import info, setLogLevel
-from mn_wifi.sixLoWPAN.link import LoWPAN
 from mininet.term import makeTerm
-from containernet.energy import Energy
+
+from mn_wifi.sixLoWPAN.link import LoWPAN
 from mn_wifi.energy import BitZigBeeEnergy
-# from mn_wifi.bitEnergy import BitEnergy
+
+from containernet.node import DockerP4Sensor
+from containernet.cli import CLI
+from containernet.energy import Energy
 
 from federated.net import MininetFed
 from federated.node import ClientSensor, ServerSensor
@@ -29,21 +30,21 @@ def topology():
     if '-10' in sys.argv:
         t = 10
         
-    
+    # Executa o caso de uso All
     if '--case_all' in sys.argv:
         server_args = {"min_trainers": 8, "num_rounds": 20,
                "stop_acc": 0.999, 'client_selector': 'All'}
         client_args = {"mode": 'random same_samples',
                'num_samples': 15000} 
         experiment_name='sbrc_mnist_select_all_iid'
+    # Executa o caso de uso Random
     elif '--case_random' in sys.argv:
-        
         server_args = {"min_trainers": 8, "num_rounds": 20,
                "stop_acc": 0.99, 'client_selector': 'Random'}
         client_args = {"mode": 'random same_samples',
                     'num_samples': 15000} 
         experiment_name='sbrc_mnist_select_random_5_iid'
-        
+    # Executa o caso de uso Energy
     elif '--case_energy' in sys.argv:
         server_args = {"min_trainers": 8, "num_rounds": 20,
                "stop_acc": 0.99, 'client_selector': 'LeastEnergyConsumption'}
@@ -53,9 +54,7 @@ def topology():
     else:
         raise Exception("É preciso selecionar um caso para executar (--case_all, --case_random, ou --case_energy)\n")
 
-
     # Instanciação da rede
-
     net = MininetFed(ipBase='10.0.0.0/24', iot_module='mac802154_hwsim', controller=[], experiment_name=experiment_name,
                      experiments_folder="sbrc", date_prefix=False, default_volumes=volumes, topology_file=sys.argv[0])
     
@@ -69,7 +68,7 @@ def topology():
     dimage = 'ramonfontes/bmv2:lowpan'
 
     info('*** Adding Nodes...\n')
-    s1 = net.addSwitch("s1", failMode='standalone')
+    s1 = net.addSwitch("s1", failMode='standalone# Executa o caso de uso All')
     ap1 = net.addAPSensor('ap1', cls=DockerP4Sensor, ip6='fe80::1/64', panid='0xbeef',
                           dodag_root=True, storing_mode=mode, privileged=True,
                           volumes=[path + "/:/root",
@@ -79,8 +78,7 @@ def topology():
                           thriftport=50001,  IPBASE="172.17.0.0/24", **args)  
 
     srv1 = net.addFlHost('srv1', cls=ServerSensor, script="server/server.py",  
-                         args=server_args, volumes=volumes, 
-                       
+                         args=server_args, volumes=volumes,                      
                          dimage='mininetfed:serversensor',
                          ip6='fe80::2/64', panid='0xbeef', trickle_t=t,
                          environment={"DISPLAY": ":0"}, privileged=True
@@ -90,12 +88,10 @@ def topology():
     for i in range(8):
         clients.append(net.addSensor(f'sta{i}', privileged=True, environment={"DISPLAY": ":0"},
                                      cls=ClientSensor, script="client/client.py",
-
                                      ip6=f'fe80::{i+3}/64',
                                      numeric_id=i-1,
                                      args=client_args, volumes=volumes,
                                      dimage='mininetfed:clientsensor'
-
                                      ))
     net.addAutoStop6()
 
@@ -120,7 +116,6 @@ def topology():
     net.addLink(ap1, h1)
     net.addLinkAutoStop(ap1)
 
-
     h1.cmd('ifconfig h1-eth1 192.168.0.1')
 
     info('*** Starting network...\n')
@@ -129,7 +124,6 @@ def topology():
     ap1.start([])
     s1.start([])
     net.staticArp()
-
 
     info("*** Measuring energy consumption\n")
     Energy(net.sensors)
@@ -157,14 +151,10 @@ def topology():
         client.run(broker_addr=broker_addr,
                    experiment_controller=net.experiment_controller, args=client_args)
    
-
     h1.cmd("ifconfig h1-eth1 down")
 
-
     info('*** Running Autostop...\n')
-
     net.wait_experiment(broker_addr=broker_addr)
-
     os.system('pkill -9 -f xterm')
 
     info('*** Stopping network...\n')
