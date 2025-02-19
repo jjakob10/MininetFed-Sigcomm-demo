@@ -33,7 +33,7 @@ sudo python3 topology.py [--case_all|--case_random|--case_energy]
 
 Após executar o comando, a rede e os dispisitivos serão instanciados. Após alguns segundos, múltiplas janelas do Xterm serão abertas como na figura a seguir
 
-<img align="center" src="https://github.com/lprm-ufes/MininetFed-LoWPAN/blob/topology-unico/images/terminais.png" width="600" alt=""/>
+<img src="https://github.com/lprm-ufes/MininetFed-LoWPAN/blob/topology-unico/images/terminais.png" width="600" alt=""/>
 
 No terminal onde o comando foi executado, aparecerá a mensagem _Waiting for messages_ que indica que o Mininetfed está esperando pela mensagem de finalização do experimento.
 
