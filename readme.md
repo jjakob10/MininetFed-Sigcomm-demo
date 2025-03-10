@@ -9,9 +9,9 @@
 
 ## Instalação do MininetFed
 
-Siga o passo-a-passo descrito na documentação para instalar o MininetFed na máquina local com a versão do Containernet recomendada.
+<!-- Siga o passo-a-passo descrito na documentação para instalar o MininetFed na máquina local com a versão do Containernet recomendada.
 
-- [Primeiros Passos](docs/pt-br/Primeiros-Passos.md)
+- [Primeiros Passos](docs/pt-br/Primeiros-Passos.md) -->
 
 ## Executando experimentos
 
