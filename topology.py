@@ -20,6 +20,14 @@ from federated.node import ClientSensor, ServerSensor
 volume = "/flw"
 volumes = [f"{Path.cwd()}:" + volume, "/tmp/.X11-unix:/tmp/.X11-unix:rw"]
 
+experiment_config = {
+    "ipBase": "10.0.0.0/24",
+    "iot_module":"mac802154_hwsim",
+    "experiments_folder": "sbrc",
+    # "experiment_name": "ipv4_test",
+    "date_prefix": False
+}
+
 server_args = {}
 client_args = {}  
 experiment_name = ""
@@ -33,30 +41,30 @@ def topology():
     # Executa o caso de uso All
     if '--case_all' in sys.argv:
         server_args = {"min_trainers": 8, "num_rounds": 20,
-               "stop_acc": 0.999, 'client_selector': 'All'}
+               "stop_acc": 0.999, 'client_selector': 'All', 'aggregator': "FedAvg"}
         client_args = {"mode": 'random same_samples',
-               'num_samples': 15000} 
+               'num_samples': 15000,"trainer_class": "TrainerMNIST"}
         experiment_name='sbrc_mnist_select_all_iid'
     # Executa o caso de uso Random
     elif '--case_random' in sys.argv:
         server_args = {"min_trainers": 8, "num_rounds": 20,
-               "stop_acc": 0.99, 'client_selector': 'Random'}
+               "stop_acc": 0.99, 'client_selector': 'Random', 'aggregator': "FedAvg"}
         client_args = {"mode": 'random same_samples',
-                    'num_samples': 15000} 
+                    'num_samples': 15000,"trainer_class": "TrainerMNIST"}
         experiment_name='sbrc_mnist_select_random_5_iid'
     # Executa o caso de uso Energy
     elif '--case_energy' in sys.argv:
         server_args = {"min_trainers": 8, "num_rounds": 20,
-               "stop_acc": 0.99, 'client_selector': 'LeastEnergyConsumption'}
+               "stop_acc": 0.99, 'client_selector': 'LeastEnergyConsumption', 'aggregator': "FedAvg"}
         client_args = {"mode": 'random same_samples',
-               'num_samples': 15000}
+               'num_samples': 15000,"trainer_class": "TrainerMNIST"}
         experiment_name='sbrc_mnist_select_energy_iid'
     else:
         raise Exception("É preciso selecionar um caso para executar (--case_all, --case_random, ou --case_energy)\n")
 
     # Instanciação da rede
-    net = MininetFed(ipBase='10.0.0.0/24', iot_module='mac802154_hwsim', controller=[], experiment_name=experiment_name,
-                     experiments_folder="sbrc", date_prefix=False, default_volumes=volumes, topology_file=sys.argv[0])
+    net = MininetFed(**experiment_config,controller=[], experiment_name=experiment_name,
+                    default_volumes=volumes, topology_file=sys.argv[0])
     
     path = os.path.dirname(os.path.abspath(__file__))
 
@@ -137,24 +145,24 @@ def topology():
     makeTerm(
         ap1, cmd="bash -c 'tail -f /var/log/mosquitto/mosquitto.log'")
 
-    sleep(2)
-    broker_addr = 'fd3c:be8a:173f:8e80::1'
-
+    net.broker_addr  = 'fd3c:be8a:173f:8e80::1'
+    
+    sleep(1)
     info('*** Server...\n')
-    srv1.run(broker_addr=broker_addr,
-             experiment_controller=net.experiment_controller, args=server_args)
+    srv1.run(broker_addr=net.broker_addr,
+             experiment_controller=net.experiment_controller)
 
-    sleep(5)
+    sleep(3)
 
     info('*** Clients...\n')
     for client in clients:
-        client.run(broker_addr=broker_addr,
-                   experiment_controller=net.experiment_controller, args=client_args)
+        client.run(broker_addr=net.broker_addr,
+                   experiment_controller=net.experiment_controller)
    
     h1.cmd("ifconfig h1-eth1 down")
 
     info('*** Running Autostop...\n')
-    net.wait_experiment(broker_addr=broker_addr)
+    net.wait_experiment()
     os.system('pkill -9 -f xterm')
 
     info('*** Stopping network...\n')
