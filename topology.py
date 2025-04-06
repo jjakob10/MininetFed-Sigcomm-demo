@@ -22,7 +22,7 @@ volumes = [f"{Path.cwd()}:" + volume, "/tmp/.X11-unix:/tmp/.X11-unix:rw"]
 
 experiment_config = {
     "ipBase": "10.0.0.0/24",
-    "iot_module":"mac802154_hwsim",
+    # "iot_module":"mac802154_hwsim",
     "experiments_folder": "sbrc",
     # "experiment_name": "ipv4_test",
     "date_prefix": False
