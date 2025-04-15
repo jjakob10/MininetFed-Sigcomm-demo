@@ -41,7 +41,7 @@ def topology():
 
     # Executa o caso de uso All
     if '--case_all' in sys.argv or '-a' in sys.argv:
-        server_args = {"min_trainers": 8, "num_rounds": 20,
+        server_args = {"min_trainers": 11, "num_rounds": 20,
                        "stop_acc": 0.999, 'client_selector': 'All', 'aggregator': "FedAvg"}
         client_args = {"mode": 'random same_samples',
                        'num_samples': 15000, "trainer_class": "TrainerMNIST"}
@@ -102,7 +102,7 @@ def topology():
                          )
 
     clients = []
-    for i in range(8):
+    for i in range(11):
         clients.append(net.addSensor(f'sta{i}', privileged=True, environment={"DISPLAY": ":0"},
                                      cls=ClientSensor, script="client/client.py",
                                      voltage=3.7,
@@ -123,15 +123,33 @@ def topology():
     info('*** Creating links...\n')
     net.addLink(s1, h1)
     net.addLink(ap1, srv1, cls=LoWPAN)
+    
+    """
+    0 - 1  
+    1 - 2  
+    2 - 4  
+    4 - 3  
+    4 - 5  
+    5 - 6  
+    6 - 7  
+    6 - 8  
+    8 - 9  
+    8 - 10
+    ap1 - 0  
 
-    net.addLink(ap1, clients[0], cls=LoWPAN)
-    net.addLink(ap1, clients[4], cls=LoWPAN)
+    """
+
+    net.addLink(ap1, clients[5], cls=LoWPAN) 
     net.addLink(clients[0], clients[1], cls=LoWPAN)
-    net.addLink(clients[0], clients[2], cls=LoWPAN)
-    net.addLink(clients[0], clients[3], cls=LoWPAN)
+    net.addLink(clients[1], clients[2], cls=LoWPAN)
+    net.addLink(clients[2], clients[4], cls=LoWPAN)
+    net.addLink(clients[4], clients[3], cls=LoWPAN)
     net.addLink(clients[4], clients[5], cls=LoWPAN)
-    net.addLink(clients[4], clients[6], cls=LoWPAN)
-    net.addLink(clients[4], clients[7], cls=LoWPAN)
+    net.addLink(clients[5], clients[6], cls=LoWPAN)
+    net.addLink(clients[6], clients[7], cls=LoWPAN)
+    net.addLink(clients[6], clients[8], cls=LoWPAN)
+    net.addLink(clients[8], clients[9], cls=LoWPAN)
+    net.addLink(clients[8], clients[10], cls=LoWPAN)
     net.addLink(ap1, h1)
     net.addLinkAutoStop(ap1)
 
