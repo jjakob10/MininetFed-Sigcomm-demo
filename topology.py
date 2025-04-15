@@ -29,43 +29,48 @@ experiment_config = {
 }
 
 server_args = {}
-client_args = {}  
+client_args = {}
 experiment_name = ""
+
 
 def topology():
     # Configurações iniciais
     t = 5
     if '-10' in sys.argv:
         t = 10
-        
+
     # Executa o caso de uso All
-    if '--case_all' in sys.argv:
+    if '--case_all' in sys.argv or '-a' in sys.argv:
         server_args = {"min_trainers": 8, "num_rounds": 20,
-               "stop_acc": 0.999, 'client_selector': 'All', 'aggregator': "FedAvg"}
+                       "stop_acc": 0.999, 'client_selector': 'All', 'aggregator': "FedAvg"}
         client_args = {"mode": 'random same_samples',
-               'num_samples': 15000,"trainer_class": "TrainerMNIST"}
-        experiment_name='sbrc_mnist_select_all_iid'
+                       'num_samples': 15000, "trainer_class": "TrainerMNIST"}
+        experiment_name = 'sbrc_mnist_select_all_iid'
+        plot_title = 'Battery Consumption \n Selection of all clients'
     # Executa o caso de uso Random
-    elif '--case_random' in sys.argv:
+    elif '--case_random' in sys.argv or '-r' in sys.argv:
         server_args = {"min_trainers": 8, "num_rounds": 20,
-               "stop_acc": 0.99, 'client_selector': 'Random', 'aggregator': "FedAvg"}
+                       "stop_acc": 0.99, 'client_selector': 'Random', 'aggregator': "FedAvg"}
         client_args = {"mode": 'random same_samples',
-                    'num_samples': 15000,"trainer_class": "TrainerMNIST"}
-        experiment_name='sbrc_mnist_select_random_5_iid'
+                       'num_samples': 15000, "trainer_class": "TrainerMNIST"}
+        experiment_name = 'sbrc_mnist_select_random_5_iid'
+        plot_title = 'Battery Consumption \n Random Client Selection'
     # Executa o caso de uso Energy
-    elif '--case_energy' in sys.argv:
+    elif '--case_energy' in sys.argv or '-e' in sys.argv:
         server_args = {"min_trainers": 8, "num_rounds": 20,
-               "stop_acc": 0.99, 'client_selector': 'LeastEnergyConsumption', 'aggregator': "FedAvg"}
+                       "stop_acc": 0.99, 'client_selector': 'LeastEnergyConsumption', 'aggregator': "FedAvg"}
         client_args = {"mode": 'random same_samples',
-               'num_samples': 15000,"trainer_class": "TrainerMNIST"}
-        experiment_name='sbrc_mnist_select_energy_iid'
+                       'num_samples': 15000, "trainer_class": "TrainerMNIST"}
+        experiment_name = 'sbrc_mnist_select_energy_iid'
+        plot_title = 'Battery Consumption \n Energy Consumption Client Selection'
     else:
-        raise Exception("É preciso selecionar um caso para executar (--case_all, --case_random, ou --case_energy)\n")
+        raise Exception(
+            "É preciso selecionar um caso para executar (--case_all, --case_random, ou --case_energy)\n")
 
     # Instanciação da rede
-    net = MininetFed(**experiment_config,controller=[], experiment_name=experiment_name,
-                    default_volumes=volumes, topology_file=sys.argv[0])
-    
+    net = MininetFed(**experiment_config, controller=[], experiment_name=experiment_name,
+                     default_volumes=volumes, topology_file=sys.argv[0])
+
     path = os.path.dirname(os.path.abspath(__file__))
 
     json_file = '/root/json/lowpan-storing.json'
@@ -78,15 +83,19 @@ def topology():
     info('*** Adding Nodes...\n')
     s1 = net.addSwitch("s1", failMode='standalone# Executa o caso de uso All')
     ap1 = net.addAPSensor('ap1', cls=DockerP4Sensor, ip6='fe80::1/64', panid='0xbeef',
+                          voltage=3.7,
+                          battery_capacity=10,
                           dodag_root=True, storing_mode=mode, privileged=True,
                           volumes=[path + "/:/root",
                                    "/tmp/.X11-unix:/tmp/.X11-unix:rw"],
                           dimage=dimage, cpu_shares=20, netcfg=True, trickle_t=t,
                           environment={"DISPLAY": ":1"}, loglevel="info",
-                          thriftport=50001,  IPBASE="172.17.0.0/24", **args)  
+                          thriftport=50001,  IPBASE="172.17.0.0/24", **args)
 
-    srv1 = net.addFlHost('srv1', cls=ServerSensor, script="server/server.py",  
-                         args=server_args, volumes=volumes,                      
+    srv1 = net.addFlHost('srv1', cls=ServerSensor, script="server/server.py",
+                         voltage=3.7,
+                         battery_capacity=10,
+                         args=server_args, volumes=volumes,
                          dimage='mininetfed:serversensor',
                          ip6='fe80::2/64', panid='0xbeef', trickle_t=t,
                          environment={"DISPLAY": ":0"}, privileged=True
@@ -96,6 +105,8 @@ def topology():
     for i in range(8):
         clients.append(net.addSensor(f'sta{i}', privileged=True, environment={"DISPLAY": ":0"},
                                      cls=ClientSensor, script="client/client.py",
+                                     voltage=3.7,
+                                     battery_capacity=6,
                                      ip6=f'fe80::{i+3}/64',
                                      numeric_id=i-1,
                                      args=client_args, volumes=volumes,
@@ -126,6 +137,11 @@ def topology():
 
     h1.cmd('ifconfig h1-eth1 192.168.0.1')
 
+    if '-p' in sys.argv:
+        net.plotEnergyMonitor(
+            nodes=[clients[0], clients[4]], title=plot_title)
+        info('*** Plotting Battery Consumption...\n')
+
     info('*** Starting network...\n')
     net.build()
     net.addNAT(name='nat0', linkTo='s1', ip='192.168.210.254').configDefault()
@@ -145,8 +161,8 @@ def topology():
     makeTerm(
         ap1, cmd="bash -c 'tail -f /var/log/mosquitto/mosquitto.log'")
 
-    net.broker_addr  = 'fd3c:be8a:173f:8e80::1'
-    
+    net.broker_addr = 'fd3c:be8a:173f:8e80::1'
+
     sleep(1)
     info('*** Server...\n')
     srv1.run(broker_addr=net.broker_addr,
@@ -158,7 +174,7 @@ def topology():
     for client in clients:
         client.run(broker_addr=net.broker_addr,
                    experiment_controller=net.experiment_controller)
-   
+
     h1.cmd("ifconfig h1-eth1 down")
 
     info('*** Running Autostop...\n')
