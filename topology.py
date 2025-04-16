@@ -1,5 +1,6 @@
 import os
 import sys
+import threading
 from pathlib import Path
 from time import sleep
 
@@ -15,6 +16,8 @@ from containernet.energy import Energy
 
 from federated.net import MininetFed
 from federated.node import ClientSensor, ServerSensor
+
+from battery import iniciar_plot
 
 
 volume = "/flw"
@@ -194,6 +197,13 @@ def topology():
                    experiment_controller=net.experiment_controller)
 
     h1.cmd("ifconfig h1-eth1 down")
+    
+    # Inicia o gráfico numa thread
+    if '-p' not in sys.argv:
+        info('*** Starting plot...\n')
+        thread_plot = threading.Thread(target=iniciar_plot, args=(clients,plot_title,), daemon=True)
+        thread_plot.start()
+
 
     info('*** Running Autostop...\n')
     net.wait_experiment()
