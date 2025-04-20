@@ -49,7 +49,7 @@ def topology():
         client_args = {"mode": 'random same_samples',
                        'num_samples': 15000, "trainer_class": "TrainerMNIST"}
         experiment_name = 'sbrc_mnist_select_all_iid'
-        plot_title = 'Battery Consumption \n Selection of all clients'
+        plot_title = 'Battery Consumption Selection of all clients'
     # Executa o caso de uso Random
     elif '--case_random' in sys.argv or '-r' in sys.argv:
         server_args = {"min_trainers": 8, "num_rounds": 20,
@@ -57,7 +57,7 @@ def topology():
         client_args = {"mode": 'random same_samples',
                        'num_samples': 15000, "trainer_class": "TrainerMNIST"}
         experiment_name = 'sbrc_mnist_select_random_5_iid'
-        plot_title = 'Battery Consumption \n Random Client Selection'
+        plot_title = 'Battery Consumption Random Client Selection'
     # Executa o caso de uso Energy
     elif '--case_energy' in sys.argv or '-e' in sys.argv:
         server_args = {"min_trainers": 8, "num_rounds": 20,
@@ -65,7 +65,7 @@ def topology():
         client_args = {"mode": 'random same_samples',
                        'num_samples': 15000, "trainer_class": "TrainerMNIST"}
         experiment_name = 'sbrc_mnist_select_energy_iid'
-        plot_title = 'Battery Consumption \n Energy Consumption Client Selection'
+        plot_title = 'Battery Consumption Energy Consumption Client Selection'
     else:
         raise Exception(
             "É preciso selecionar um caso para executar (--case_all, --case_random, ou --case_energy)\n")
@@ -109,7 +109,7 @@ def topology():
         clients.append(net.addSensor(f'sta{i}', privileged=True, environment={"DISPLAY": ":0"},
                                      cls=ClientSensor, script="client/client.py",
                                      voltage=3.7,
-                                     battery_capacity=6,
+                                     battery_capacity=15,
                                      ip6=f'fe80::{i+3}/64',
                                      numeric_id=i-1,
                                      args=client_args, volumes=volumes,
