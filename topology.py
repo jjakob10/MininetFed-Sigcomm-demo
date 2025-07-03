@@ -26,7 +26,7 @@ volumes = [f"{Path.cwd()}:" + volume, "/tmp/.X11-unix:/tmp/.X11-unix:rw"]
 experiment_config = {
     "ipBase": "10.0.0.0/24",
     # "iot_module":"mac802154_hwsim",
-    "experiments_folder": "sbrc",
+    "experiments_folder": "sigcomm",
     # "experiment_name": "ipv4_test",
     "date_prefix": False
 }
@@ -127,20 +127,6 @@ def topology():
     net.addLink(s1, h1)
     net.addLink(ap1, srv1, cls=LoWPAN)
     
-    """
-    0 - 1  
-    1 - 2  
-    2 - 4  
-    4 - 3  
-    4 - 5  
-    5 - 6  
-    6 - 7  
-    6 - 8  
-    8 - 9  
-    8 - 10
-    ap1 - 0  
-
-    """
 
     net.addLink(ap1, clients[5], cls=LoWPAN) 
     net.addLink(clients[0], clients[1], cls=LoWPAN)

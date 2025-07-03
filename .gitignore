@@ -16,6 +16,7 @@ experiments_queue/
 docs/env/
 envs/
 sbrc/
+sigcomm/
 
 client/data/cifar-10-batches-py/
 client/data/mnist.npz
